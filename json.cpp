@@ -1,4 +1,5 @@
 #include "json.h"
+#include "parser.h"
 #include<stdexcept>
 #include<sstream>
 
@@ -22,6 +23,7 @@ Json::Json(const char* value): m_type(json_string){
 }
 
 Json::Json(const string& value): m_type(json_string){
+    // 深拷贝，重新创建了一个字符串
     m_value.m_string = new string(value);
 }
 
@@ -88,6 +90,8 @@ Json::operator string(){
 
 Json & Json::operator [](int index){
     if(m_type != json_array){
+        // 这里是不是也要先进行清理？
+        clear();
         m_type = json_array;
         m_value.m_array = new vector<Json>();
     }
@@ -96,7 +100,7 @@ Json & Json::operator [](int index){
     }
     int size = (m_value.m_array)->size();
     if(index >= size){
-        // 需要扩容
+        // 需要扩容，扩容这里似乎也有可以改进的地方
         for(int i = size; i <= index; ++i){
             (m_value.m_array)->push_back(Json());
         }
@@ -111,7 +115,8 @@ void Json::append(const Json & other){
         m_type = json_array;
         m_value.m_array = new vector<Json>();
     }
-    // 这里的 push_back 似乎有可以优化的地方
+    // 这里的 push_back 似乎有可以优化的地方，
+    // vector: push_back() -> emplace_back()
     (m_value.m_array)->push_back(other);
 }
 
@@ -130,6 +135,8 @@ Json & Json::operator [](const string& key){
 }
 
 void Json::operator = (const Json & other){
+    // 先清理后复制的原因是避免内存泄漏
+    // 另一种避免内存泄漏的方法是使用智能指针
     clear();
     copy(other);
 }
@@ -147,8 +154,9 @@ bool Json::operator == (const Json & other){
     case json_double:
         return m_value.m_double == other.m_value.m_double;
     case json_string:
-        return *(m_value.m_string) == *(other.m_value.m_string);
+        return *(m_value.m_string) == *(other.m_value.m_string); 
     case json_array:
+        // 数组和后面的对象简单判断指针变量是否相同
         return m_value.m_array == other.m_value.m_array;
     case json_object:
         return m_value.m_object == other.m_value.m_object;
@@ -213,6 +221,7 @@ void Json::clear(){
             }
         case json_array:
             {
+                // 注意这里的递归调用
                 for(auto it = (m_value.m_array)->begin(); it != (m_value.m_array)->end(); ++it){
                     it->clear();                    
                 }
@@ -266,6 +275,7 @@ string Json::str() const{
                 if(it != (m_value.m_array)->begin()){
                     ss << ',';
                 }
+                // 递归调用
                 ss << it->str();
             }
             ss << ']';
@@ -361,8 +371,15 @@ void Json::remove(const string& key){
         return;
     }
 
-    (*(m_value.m_object))[key].clear();
+    (*(m_value.m_object))[key].clear(); // 先清理
     (m_value.m_object)->erase(key);
 }
+
+void Json::parse(const string& str){
+    Parser p;
+    p.load(str);
+    *this = p.parse();
+}
+
 
 

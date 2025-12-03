@@ -1,7 +1,7 @@
 // 项目使用 makefile 构建
 // make 命令编译
 // make clean 清理可执行文件
-// 项目代码实现逻辑
+// 项目API代码实现逻辑
 // 1.实现构造函数
 // 2.实现隐式类型转换
 // 3.Json数组的加入与基本类型之间的转换
@@ -12,7 +12,13 @@
 // 8.显式类型转换
 // 9.判断数组索引或对象键值是否存在
 // 10.根据索引删除数组元素或键值删除对象值
+// 项目解析器实现逻辑
+// 1.构造函数和加载数据
+// 2.各种数据类型的解析
+// test.json内容还未添加
 #include<iostream>
+#include<fstream>
+#include<sstream>
 #include "json.h"
 
 using namespace std;
@@ -59,7 +65,6 @@ int main(){
     obj["str"] = "hello world";
 
     cout << obj.str() << endl;
-    */
 
     Json arr; // Json对象的数组
     arr[0] = true;
@@ -95,6 +100,19 @@ int main(){
     obj.clear(); // 释放一次，统一由 obj 释放
 
     cout << obj.str() << endl;
+    */
+
+    //const string& str = "{\"a\": 1, \"b\": 2, \"c\": 3}";
+
+    ifstream fin("./test2.json");
+    stringstream ss;
+    ss << fin.rdbuf();
+    const string & str = ss.str();
+
+    Json v; // 使用方法与nlohmann/json基本相同
+    v.parse(str);
+
+    cout << v.str() << endl;
 
     return 0;
 }

@@ -5,6 +5,7 @@
 #include<map>
 using namespace std; 
 
+// 嵌套命名空间：yazi::json
 namespace yazi{
     namespace json{
         class Json{
@@ -29,6 +30,7 @@ namespace yazi{
             Json(Type type);
             Json(const Json& other);
 
+            // 隐式转换
             operator bool();
             operator int();
             operator double();
@@ -84,6 +86,8 @@ namespace yazi{
             void remove(int index);
             void remove(const char* key);
             void remove(const string& key);
+
+            void parse(const string& str);
 
 
         private:

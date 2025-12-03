@@ -6,7 +6,7 @@ CXXFLAGS = -Wall -g -std=c++11
 TARGET = main
 
 # 源文件
-SRCS = json.cpp main.cpp
+SRCS = json.cpp main.cpp parser.cpp
 # 源文件更通配的写法，新增 cpp 文件也不用修改 SRC
 # SRCS = $(wildcard *.cpp)
 
